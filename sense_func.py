@@ -2,9 +2,10 @@
 
 n = 5
 #p = [1./n]*n
-p = [0, 1, 0, 0, 0]
+p = [0.2, 0.2, 0.2, 0.2, 0.2]
 world = ['green', 'red', 'red', 'green', 'green']
-measurements = ['red', ' green']
+measurements = ['red', 'red']
+motions = [1, 1]
 pHit = 0.6
 pMiss = 0.2
 pExact = 0.8
@@ -23,6 +24,9 @@ def move(p, U):
          for i in range(len(p))]
     return q
 
-#print sense(p, Z)
-print move(p, 1)
+for i in range(len(motions)):
+    p = sense(p, measurements[i])
+    p = move(p, motions[i])
+
+print p
 
