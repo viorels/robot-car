@@ -26,7 +26,41 @@ p = []
 n = sum(len(line) for line in colors)
 p = [[1./n] * len(colors[i]) for i in range(len(colors))]
 
+def zero_prob():
+    return [[0.] * len(colors[i]) for i in range(len(colors))]
 
+def move_with(x, y, dx, dy):
+    return (x+dx) % len(colors[y]), (y+dy) % len(colors)
+
+def norm(p):
+    s = sum(sum(line) for line in p)
+    return [[x/s for x in line] for line in p]
+
+def sense(p, Z):
+    q = zero_prob()
+    for j in range(len(p)):
+        for i in range(len(p[j])):
+            if colors[j][i] == Z:
+                q[j][i] = p[j][i] * sensor_right
+            else:
+                q[j][i] = p[j][i] * (1-sensor_right)
+    return norm(q)
+
+def move(p, U):
+    q = zero_prob()
+    for j in range(len(p)):
+        for i in range(len(p[j])):
+            #print "%d, %d" % (i, j)
+            ni, nj = move_with(i, j, *U)
+            #print "[%d, %d] + (%d, %d) => [%d, %d]" % (i, j, U[0], U[1], ni, nj)
+            q[j][i] += p[j][i] * (1-p_move)
+            q[nj][ni] += p[j][i] * p_move
+    return norm(q)
+
+
+for i in range(len(motions)):
+    p = move(p, motions[i])
+    p = sense(p, measurements[i])
 
 #Your probability array must be printed 
 #with the following code.
@@ -34,33 +68,4 @@ p = [[1./n] * len(colors[i]) for i in range(len(colors))]
 show(p)
 
 ##########
-
-n = 5
-#p = [1./n]*n
-p = [0.2, 0.2, 0.2, 0.2, 0.2]
-world = ['green', 'red', 'red', 'green', 'green']
-measurements = ['red', 'red']
-motions = [1, 1]
-pHit = 0.6
-pMiss = 0.2
-pExact = 0.8
-pOvershoot = pUndershoot = 0.1
-
-def sense(p, Z):
-    q = [p[i]*pHit if world[i] == Z else p[i]*pMiss for i in range(len(p))]
-    s = sum(q)
-    norm_q = [x/s for x in q]
-    return norm_q
-
-def move(p, U):
-    q = [p[(i-U) % len(p)] * pExact + 
-         p[(i-U-1) % len(p)] * pOvershoot +
-         p[(i-U+1) % len(p)] * pUndershoot
-         for i in range(len(p))]
-    return q
-
-for i in range(len(motions)):
-    p = sense(p, measurements[i])
-    p = move(p, motions[i])
-
 
